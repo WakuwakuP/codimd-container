@@ -1,0 +1,66 @@
+# Using version 3 to provide play-with-docker badge
+# You can change to version 2 without breaking.
+#version: '2'
+version: '3.4'
+
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: codimd-nginx
+    expose:
+      - "20093"
+    restart: always
+    tty: false
+    environment:
+      - "VIRTUAL_HOST=hackmd.wakuwakup.net"
+      - "VIRTUAL_PORT=20093"
+      - "VIRTUAL_PROTO=https"
+      - "LETSENCRYPT_HOST=hackmd.wakuwakup.net"
+      - "LETSENCRYPT_EMAIL=naoki.fujisawa1@gmail.com"
+      - "LETSENCRYPT_TEST=false"
+    depends_on:
+      - app
+    volumes:
+      - ./setting/nginx/conf.d:/etc/nginx/conf.d
+      - certs:/etc/nginx/certs
+    networks:
+      - front
+      - back-codimd
+  
+  database:
+    image: postgres:9.6-alpine
+    environment:
+      - POSTGRES_USER=hackmd
+      - POSTGRES_PASSWORD=dfsA2RCsPmCzvYy
+      - POSTGRES_DB=hackmd
+    volumes:
+      - database:/var/lib/postgresql/data
+    networks:
+      - back-codimd
+    restart: always
+
+  app:
+    image: hackmdio/hackmd:2.3.2-cjk
+    env_file:
+      - app.env
+    networks:
+      - back-codimd
+    restart: always
+    depends_on:
+      - database
+
+# Define networks to allow best isolation
+networks:
+  front:
+    external: true
+  # Internal network for communication with PostgreSQL/MySQL
+  back-codimd:
+    external: true
+
+# Define named volumes so data stays in place
+volumes:
+  # Volume for PostgreSQL/MySQL database
+  database:
+    driver: local
+  certs:
+    external: true

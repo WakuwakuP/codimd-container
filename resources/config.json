@@ -1,0 +1,28 @@
+{
+    "production": {
+        "domain": "codimd.wakuwakup.net",
+        "protocolUseSSL": true,
+        "urlAddPort": true,
+        "email": true,
+        "db": {
+            "username": "hackmd",
+            "password": "hackmdpass",
+            "database": "hackmd",
+            "host": "hackmdPostgres",
+            "port": "5432",
+            "dialect": "postgres"
+        },
+        "imageUploadType": "s3",
+	"s3": {
+            "accessKeyId": "AKIA4YANNHMTYXAV465E",
+            "secretAccessKey": "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",
+            "s3bucket": "codimd.wakuwakup.net",
+            "region": "ap-northeast-1"
+        },
+	"saml": {
+            "idpSsoUrl": "https://ds.wakuwakup.net",
+            "issuer": "ds.wakuwakup.net",
+            "id": "4a8220d6c29f842e8b77aacd307a6ced"
+        }
+    }
+}
