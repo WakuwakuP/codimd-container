@@ -31,7 +31,7 @@ services:
     image: postgres:9.6-alpine
     environment:
       - POSTGRES_USER=hackmd
-      - POSTGRES_PASSWORD=dfsA2RCsPmCzvYy
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=hackmd
     volumes:
       - database:/var/lib/postgresql/data

@@ -1,2 +1,3 @@
 kubernetes/chart/charts/*.tgz
 app.env
+.env
