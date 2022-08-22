@@ -40,7 +40,7 @@ services:
     restart: always
 
   app:
-    image: hackmdio/hackmd:2.4.1-cjk
+    image: hackmdio/hackmd:2.4.2-cjk
     env_file:
       - app.env
     networks:
