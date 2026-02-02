@@ -4,31 +4,8 @@
 version: '3.4'
 
 services:
-  nginx:
-    image: nginx:alpine
-    container_name: codimd-nginx
-    expose:
-      - "20093"
-    restart: always
-    tty: false
-    environment:
-      - "VIRTUAL_HOST=hackmd.wakuwakup.net"
-      - "VIRTUAL_PORT=20093"
-      - "VIRTUAL_PROTO=https"
-      - "LETSENCRYPT_HOST=hackmd.wakuwakup.net"
-      - "LETSENCRYPT_EMAIL=naoki.fujisawa1@gmail.com"
-      - "LETSENCRYPT_TEST=false"
-    depends_on:
-      - app
-    volumes:
-      - ./setting/nginx/conf.d:/etc/nginx/conf.d
-      - certs:/etc/nginx/certs
-    networks:
-      - front
-      - back-codimd
-  
   database:
-    image: postgres:9.6-alpine
+    image: postgres:11.6-alpine
     environment:
       - POSTGRES_USER=hackmd
       - POSTGRES_PASSWORD=${DB_PASSWORD}
@@ -38,20 +15,39 @@ services:
     networks:
       - back-codimd
     restart: always
+    ports:
+      - 5432:5432
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -h localhost -U hackmd -d hackmd"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   app:
-    image: hackmdio/hackmd:2.4.2-cjk
+    image: nabo.codimd.dev/hackmdio/hackmd:latest
+    # image: wakuwakup/hackmd:f6cd80f
     env_file:
       - app.env
     networks:
       - back-codimd
+      - caddy
     restart: always
+    ports:
+      - 3000:3000
     depends_on:
-      - database
+      database:
+        condition: service_healthy
+    labels:
+      caddy: "hackmd.wakuwakup.net"
+      caddy.reverse_proxy: "app:3000"
 
 # Define networks to allow best isolation
 networks:
-  front:
+  caddy:
     external: true
   # Internal network for communication with PostgreSQL/MySQL
   back-codimd:
@@ -62,5 +58,3 @@ volumes:
   # Volume for PostgreSQL/MySQL database
   database:
     driver: local
-  certs:
-    external: true
